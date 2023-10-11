@@ -49,7 +49,7 @@ app.post('/relay', async (req, res) => {
 
         res.json({ success: true, txHash: txReceipt.hash });
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        res.status(400).json({ success: false, message: error.message, error: 'Transaction failed'  });
     }
 });
 
@@ -63,7 +63,7 @@ app.post('/approve', async (req, res) => {
 
         res.json({ success: true, txHash: txReceipt.hash });
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        res.status(400).json({ success: false, message: error.message, error: 'Transaction failed' });
     }
 });
 
