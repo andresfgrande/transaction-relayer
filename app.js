@@ -1,4 +1,5 @@
-const LoyaltyProgramAbi = require('./Abi/loyalty-program-abi.json');
+const LoyaltyProgramAbi = require('./Abi/loyalty-program.json');
+const LoyaltyProgramFactory = require('./Abi/loyalty-program-factory.json');
 
 const express = require('express');
 const {utils, ethers ,formatEther} = require('ethers');
@@ -14,12 +15,15 @@ const PORT = 6475;
 
 const provider = new ethers.JsonRpcProvider(process.env.RPC_URL);
 
-const privateKey = process.env.RELAYER_PK;  
+const privateKey = process.env.RELAYER_PK;  //Será dinamico segun que user llame
 const wallet = new ethers.Wallet(privateKey, provider);
-const contractAddress = process.env.LOYALTY_PROGRAM_ADDRESS;
+
+const contractAddress = process.env.LOYALTY_PROGRAM_ADDRESS; //Será dinamico segun que user llame
 const contractABI = LoyaltyProgramAbi.abi;
 
-const contract = new ethers.Contract(contractAddress, contractABI, wallet);
+const contractLoyaltyProgram = new ethers.Contract(contractAddress, contractABI, wallet);
+
+const contractLoyaltyProgramFactory = new ethers.Contract(process.env.LOYALTY_PROGRAM_FACTORY_ADDRESS, LoyaltyProgramFactory.abi, wallet);
 
 app.use(bodyParser.json());
 
@@ -40,11 +44,11 @@ app.get('/balance/:address', async (req, res) => {
     }
 });
 
-app.post('/relay', async (req, res) => {
+app.post('/transfer', async (req, res) => {
     try {
         const { from, to, amount, signature } = req.body;
 
-        const txResponse = await contract.userTransferTokensToUser(from, to, amount, signature);
+        const txResponse = await contractLoyaltyProgram.userTransferTokensToUser(from, to, amount, signature);
         const txReceipt = await txResponse.wait();
 
         res.json({ success: true, txHash: txReceipt.hash });
@@ -58,9 +62,23 @@ app.post('/approve', async (req, res) => {
         const { owner, spender, value, signature } = req.body;
         console.log(value);
 
-        const txResponse = await contract.gaslessApprove(owner, spender, value, signature);
+        const txResponse = await contractLoyaltyProgram.gaslessApprove(owner, spender, value, signature);
         const txReceipt = await txResponse.wait();
 
+        res.json({ success: true, txHash: txReceipt.hash });
+    } catch (error) {
+        res.status(400).json({ success: false, message: error.message, error: 'Transaction failed' });
+    }
+});
+
+app.post('/register', async (req, res) => {
+    try {
+        const { address, loyaltyId, loyaltyPrefix } = req.body;
+        console.log(address, loyaltyId, loyaltyPrefix);
+
+        const txResponse = await contractLoyaltyProgramFactory.addUserInfo(address, loyaltyId, loyaltyPrefix);
+        const txReceipt = await txResponse.wait();
+      
         res.json({ success: true, txHash: txReceipt.hash });
     } catch (error) {
         res.status(400).json({ success: false, message: error.message, error: 'Transaction failed' });
