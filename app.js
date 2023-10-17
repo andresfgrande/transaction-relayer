@@ -12,6 +12,11 @@ const app = express();
 app.use(cors());
 const PORT = 6475;
 
+/***** Se neceseita *****/
+//PK del ADMIN
+//PK de cada COMMERCE que haya
+
+//Vendra por parametro el loyaltyProgram address con el que se ejecutará la acción
 
 const provider = new ethers.JsonRpcProvider(process.env.RPC_URL);
 
@@ -78,8 +83,11 @@ app.post('/register', async (req, res) => {
 
         const txResponse = await contractLoyaltyProgramFactory.addUserInfo(address, loyaltyId, loyaltyPrefix);
         const txReceipt = await txResponse.wait();
+
+        const txResponseLP = await contractLoyaltyProgram.register(loyaltyId, address);
+        const txReceiptLP = await txResponseLP.wait();
       
-        res.json({ success: true, txHash: txReceipt.hash });
+        res.json({ success: true, txHash1: txReceipt.hash, txHash2: txReceiptLP.hash });
     } catch (error) {
         res.status(400).json({ success: false, message: error.message, error: 'Transaction failed' });
     }
