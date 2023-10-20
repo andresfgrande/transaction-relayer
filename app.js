@@ -95,13 +95,20 @@ app.post('/approve', async (req, res) => {
 });
 
 // Use Loyalty Program Factory to registes and Loyalty Program (dynamic)
-/*app.post('/register', async (req, res) => {
+app.post('/register', async (req, res) => {
     try {
-        const { address, loyaltyId, loyaltyPrefix } = req.body;
-        console.log(address, loyaltyId, loyaltyPrefix);
+        const { address, loyaltyId, commercePrefix } = req.body;
+        console.log(address, loyaltyId, commercePrefix);
 
-        const txResponse = await contractLoyaltyProgramFactory.addUserInfo(address, loyaltyId, loyaltyPrefix);
+        const txResponse = await contractLoyaltyProgramFactory.addUserInfo(address, loyaltyId, commercePrefix);
         const txReceipt = await txResponse.wait();
+
+        const envVarName = `RELAYER_PK_COMMERCE_${commercePrefix.toUpperCase()}`;
+        const privateKeyCommerce = process.env[envVarName]; 
+        const walletCommerce = new ethers.Wallet(privateKeyCommerce, provider);
+
+        const loyaltyProgramAddress = await contractLoyaltyProgramFactory.loyaltyProgramByPrefix(commercePrefix);
+        const contractLoyaltyProgram = new ethers.Contract(loyaltyProgramAddress, LoyaltyProgramAbi.abi, walletCommerce);
 
         const txResponseLP = await contractLoyaltyProgram.register(loyaltyId, address);
         const txReceiptLP = await txResponseLP.wait();
@@ -110,7 +117,7 @@ app.post('/approve', async (req, res) => {
     } catch (error) {
         res.status(400).json({ success: false, message: error.message, error: 'Transaction failed' });
     }
-});*/
+});
 
 
 app.listen(PORT, () => {
