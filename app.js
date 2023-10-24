@@ -55,16 +55,14 @@ app.post('/transfer', async (req, res) => {
         let envVarName = `RELAYER_PK_COMMERCE_${commercePrefix.toUpperCase()}`;
         let privateKeyCommerce = process.env[envVarName]; 
 
-        console.log(privateKeyCommerce ,'test1')
-        console.log(process.env.RELAYER_PK_COMMERCE_NORM ,'test2')
         let walletCommerce = new ethers.Wallet(privateKeyCommerce, provider);
-        console.log(walletCommerce,'test3')
+
         let contractLoyaltyProgram = new ethers.Contract(loyaltyProgramAddress, LoyaltyProgramAbi.abi, walletCommerce);
-        console.log(contractLoyaltyProgram,'test4')
+
         let txResponse = await contractLoyaltyProgram.userTransferTokensToUser(from, to, amount, signature);
-        console.log(txResponse,'test5')
+
         let txReceipt = await txResponse.wait();
-        console.log(txReceipt,'test6')
+
         res.json({ success: true, txHash: txReceipt.hash });
     } catch (error) {
         res.status(400).json({ success: false, message: error.message, error: 'Transaction failed'  });
@@ -113,9 +111,37 @@ app.post('/register', async (req, res) => {
         const txResponseLP = await contractLoyaltyProgram.register(loyaltyId, address);
         const txReceiptLP = await txResponseLP.wait();
       
-        res.json({ success: true, txHash1: txReceipt.hash, txHash2: txReceiptLP.hash });
+        res.json({ success: true, txHashAddUser: txReceipt.hash, txHashRegister: txReceiptLP.hash });
     } catch (error) {
         res.status(400).json({ success: false, message: error.message, error: 'Transaction failed' });
+    }
+});
+
+// Use Loyalty Program (dynamic)
+app.post('/redeem', async (req, res) => {
+    try {
+        const { from, toProductCommerceAddress, toUserCommerceAddress,
+                amount, signature, loyaltyProgramAddress, commercePrefix } = req.body;
+
+        console.log(loyaltyProgramAddress, commercePrefix, ' - PARAMS');
+        
+        console.log({ from, toProductCommerceAddress, toUserCommerceAddress,
+            amount, signature, loyaltyProgramAddress, commercePrefix });
+
+        /*let envVarName = `RELAYER_PK_COMMERCE_${commercePrefix.toUpperCase()}`;
+        let privateKeyCommerce = process.env[envVarName]; 
+
+        let walletCommerce = new ethers.Wallet(privateKeyCommerce, provider);
+
+        let contractLoyaltyProgram = new ethers.Contract(loyaltyProgramAddress, LoyaltyProgramAbi.abi, walletCommerce);
+
+        let txResponse = await contractLoyaltyProgram.userTransferTokensToUser(from, to, amount, signature);
+
+        let txReceipt = await txResponse.wait();*/
+
+        res.json({ success: true, txHash: txReceipt.hash });
+    } catch (error) {
+        res.status(400).json({ success: false, message: error.message, error: 'Transaction failed'  });
     }
 });
 
