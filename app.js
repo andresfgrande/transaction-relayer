@@ -126,25 +126,24 @@ app.post('/redeem', async (req, res) => {
         console.log(loyaltyProgramAddress, commercePrefix, ' - PARAMS');
         
         console.log({ from, toProductCommerceAddress, toUserCommerceAddress,
-            amount, signature, loyaltyProgramAddress, commercePrefix });
+        amount, signature, loyaltyProgramAddress, commercePrefix });
 
-        /*let envVarName = `RELAYER_PK_COMMERCE_${commercePrefix.toUpperCase()}`;
+        let envVarName = `RELAYER_PK_COMMERCE_${commercePrefix.toUpperCase()}`;
         let privateKeyCommerce = process.env[envVarName]; 
 
         let walletCommerce = new ethers.Wallet(privateKeyCommerce, provider);
 
         let contractLoyaltyProgram = new ethers.Contract(loyaltyProgramAddress, LoyaltyProgramAbi.abi, walletCommerce);
 
-        let txResponse = await contractLoyaltyProgram.userTransferTokensToUser(from, to, amount, signature);
-
-        let txReceipt = await txResponse.wait();*/
+        let txResponse = await contractLoyaltyProgram.redeemProduct(from, toProductCommerceAddress,
+                                                                    toUserCommerceAddress, amount, signature);
+        let txReceipt = await txResponse.wait();
 
         res.json({ success: true, txHash: txReceipt.hash });
     } catch (error) {
         res.status(400).json({ success: false, message: error.message, error: 'Transaction failed'  });
     }
 });
-
 
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
