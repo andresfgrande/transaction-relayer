@@ -92,6 +92,29 @@ app.post('/approve', async (req, res) => {
     }
 });
 
+// Use Loyalty Program (dynamic)
+app.post('/approve_typed', async (req, res) => {
+    try {
+        const { owner, spender, value, signature, loyaltyProgramAddress, commercePrefix } = req.body;
+        console.log(value);
+
+        console.log(loyaltyProgramAddress, commercePrefix, ' - PARAMS');
+
+        const envVarName = `RELAYER_PK_COMMERCE_${commercePrefix.toUpperCase()}`;
+        const privateKeyCommerce = process.env[envVarName]; 
+        const walletCommerce = new ethers.Wallet(privateKeyCommerce, provider);
+
+        const contractLoyaltyProgram = new ethers.Contract(loyaltyProgramAddress, LoyaltyProgramAbi.abi, walletCommerce);
+
+        const txResponse = await contractLoyaltyProgram.gaslessApproveTyped(owner, spender, value, signature);
+        const txReceipt = await txResponse.wait();
+
+        res.json({ success: true, txHash: txReceipt.hash });
+    } catch (error) {
+        res.status(400).json({ success: false, message: error.message, error: 'Transaction failed' });
+    }
+});
+
 // Use Loyalty Program Factory to registes and Loyalty Program (dynamic)
 app.post('/register', async (req, res) => {
     try {
