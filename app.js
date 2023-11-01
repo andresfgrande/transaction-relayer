@@ -136,7 +136,7 @@ app.post('/redeem', async (req, res) => {
 
         let contractLoyaltyProgram = new ethers.Contract(loyaltyProgramAddress, LoyaltyProgramAbi.abi, walletCommerce);
 
-        let txResponse = await contractLoyaltyProgram.redeemProduct( from, toProductCommerceAddress,
+        let txResponse = await contractLoyaltyProgram.redeemProduct(productSku, from, toProductCommerceAddress,
                                                                     toUserCommerceAddress, amount, signature);
         let txReceipt = await txResponse.wait();
 
