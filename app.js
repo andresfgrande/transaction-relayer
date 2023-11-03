@@ -12,16 +12,9 @@ const app = express();
 app.use(cors());
 const PORT = 6475;
 
-/***** Se neceseita *****/
-//PK del ADMIN en .env
-
-//PK de cada COMMERCE que haya en .env
-
-//Vendra por parametro el loyaltyProgram address con el que se ejecutará la acción
-
 const provider = new ethers.JsonRpcProvider(process.env.RPC_URL); //Fijo para todos
 
-const privateKeyAdmin = process.env.RELAYER_PK_ADMIN;  //Será Fija PK del admin (Factory)
+const privateKeyAdmin = process.env.RELAYER_PK_ADMIN;  //Fija PK del admin (Factory)
 const walletAdmin = new ethers.Wallet(privateKeyAdmin, provider);
 
 const contractLoyaltyProgramFactory = new ethers.Contract(process.env.LOYALTY_PROGRAM_FACTORY_ADDRESS, LoyaltyProgramFactory.abi, walletAdmin);
@@ -49,10 +42,7 @@ app.post('/transfer', async (req, res) => {
     try {
         const { from, to, amount, signature, loyaltyProgramAddress, commercePrefix } = req.body;
 
-       // console.log(loyaltyProgramAddress, commercePrefix, ' - PARAMS');
-        console.log({ from, to, amount, signature, loyaltyProgramAddress, commercePrefix } )
-        
-
+  
         let envVarName = `RELAYER_PK_COMMERCE_${commercePrefix.toUpperCase()}`;
         let privateKeyCommerce = process.env[envVarName]; 
 
@@ -74,9 +64,6 @@ app.post('/transfer', async (req, res) => {
 app.post('/approve', async (req, res) => {
     try {
         const { owner, spender, value, signature, loyaltyProgramAddress, commercePrefix } = req.body;
-        console.log({ owner, spender, value, signature, loyaltyProgramAddress, commercePrefix} );
-
-        console.log(loyaltyProgramAddress, commercePrefix, ' - PARAMS');
 
         const envVarName = `RELAYER_PK_COMMERCE_${commercePrefix.toUpperCase()}`;
         const privateKeyCommerce = process.env[envVarName]; 
@@ -97,7 +84,6 @@ app.post('/approve', async (req, res) => {
 app.post('/register', async (req, res) => {
     try {
         const { address, loyaltyId, signature, commercePrefix } = req.body;
-        console.log({address, loyaltyId, signature, commercePrefix});
 
         const txResponse = await contractLoyaltyProgramFactory.addUserInfo(address, loyaltyId, commercePrefix, signature);
         const txReceipt = await txResponse.wait();
@@ -123,11 +109,6 @@ app.post('/redeem', async (req, res) => {
     try {
         const {productSku, from, toProductCommerceAddress, toUserCommerceAddress,
                 amount, signature, loyaltyProgramAddress, commercePrefix } = req.body;
-
-        console.log(loyaltyProgramAddress, commercePrefix, ' - PARAMS');
-        
-        console.log({productSku, from, toProductCommerceAddress, toUserCommerceAddress,
-        amount, signature, loyaltyProgramAddress, commercePrefix });
 
         let envVarName = `RELAYER_PK_COMMERCE_${commercePrefix.toUpperCase()}`;
         let privateKeyCommerce = process.env[envVarName]; 
