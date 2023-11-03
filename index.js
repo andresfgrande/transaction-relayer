@@ -9,7 +9,10 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 
 const app = express();
-app.use(cors());
+//app.use(cors());
+app.use(cors({
+    origin: 'https://loyalty-market.vercel.app'
+  }));
 const PORT = 6475;
 
 const provider = new ethers.JsonRpcProvider(process.env.RPC_URL); //Fijo para todos
