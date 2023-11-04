@@ -9,7 +9,7 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 
 const app = express();
-//app.use(cors());
+//app.use(cors());test
 /*app.use(cors({
     origin: 'https://loyalty-market.vercel.app'
   }));*/
