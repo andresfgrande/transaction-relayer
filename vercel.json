@@ -21,5 +21,10 @@
     "index.js": {
       "memory": 3008,
       "maxDuration": 60
+    },
+    "/*.js": {
+      "memory": 3008,
+      "maxDuration": 60
     }
+  }
 }
